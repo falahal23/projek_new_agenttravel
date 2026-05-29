@@ -2,7 +2,50 @@ import { useState } from "react";
 
 import transaksiData from "../Data/DataTransaksi.json";
 
-import { FaEye, FaTrash, FaSearch } from "react-icons/fa";
+import { FaEye, FaTrash, FaSearch, FaMoneyBill } from "react-icons/fa";
+
+// ================= SHADCN =================
+
+import { Button } from "@/components/ui/button";
+
+import { Badge } from "@/components/ui/badge";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
+import { Input } from "@/components/ui/input";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+
+// =====================================
 
 export default function DataTransaksi() {
   const [data, setData] = useState(transaksiData);
@@ -11,14 +54,20 @@ export default function DataTransaksi() {
 
   const [detail, setDetail] = useState(null);
 
-  // HAPUS DATA
-  const hapusData = (id) => {
-    if (window.confirm("Hapus data transaksi?")) {
-      setData(data.filter((item) => item.id_transaksi !== id));
-    }
+  const [deleteData, setDeleteData] = useState(null);
+
+  // DELETE
+
+  const hapusData = () => {
+    setData(
+      data.filter((item) => item.id_transaksi !== deleteData.id_transaksi),
+    );
+
+    setDeleteData(null);
   };
 
   // SEARCH
+
   const filterData = data.filter(
     (item) =>
       item.id_customer?.toLowerCase().includes(search.toLowerCase()) ||
@@ -26,7 +75,8 @@ export default function DataTransaksi() {
       item.produk_dibeli?.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // FORMAT RUPIAH
+  // FORMAT
+
   const formatRupiah = (angka) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -35,164 +85,201 @@ export default function DataTransaksi() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EAF2FF] p-6">
-      {/* HEADER */}
+    <div className="min-h-screen bg-[#EAF2FF] p-6 space-y-6">
+      {/* ALERT */}
 
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Data Transaksi</h1>
+      <Alert className="bg-white">
+        <FaMoneyBill />
 
-          <p className="text-gray-400">Riwayat transaksi customer</p>
-        </div>
+        <AlertTitle>Data Transaksi CRM</AlertTitle>
 
-        {/* SEARCH */}
+        <AlertDescription>
+          Total transaksi tersimpan : <b>{data.length}</b> data
+        </AlertDescription>
+      </Alert>
 
-        <div className="bg-white px-4 py-3 rounded-xl flex gap-3">
-          <FaSearch className="text-gray-400" />
+      {/* SEARCH */}
 
-          <input
-            placeholder="Cari transaksi..."
-            className="outline-none"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Riwayat Transaksi Customer</CardTitle>
+        </CardHeader>
 
-      {/* TABLE */}
+        <CardContent>
+          <div className="relative max-w-md">
+            <FaSearch
+              className="
+absolute
+top-3
+left-3
+text-gray-400
+"
+            />
 
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-        <table className="w-full text-center">
-          <thead className="bg-[#1018A8] text-white">
-            <tr>
-              <th className="p-4">ID Customer</th>
+            <Input
+              placeholder="Cari transaksi..."
+              className="pl-10"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-              <th>ID Transaksi</th>
+      <Tabs defaultValue="semua">
+        <TabsList>
+          <TabsTrigger value="semua">Semua Transaksi</TabsTrigger>
 
-              <th>Total</th>
+          <TabsTrigger value="report">Report</TabsTrigger>
+        </TabsList>
 
-              <th>Pembayaran</th>
+        <TabsContent value="semua">
+          <Card>
+            <CardContent className="p-5">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID Customer</TableHead>
 
-              <th>Produk</th>
+                    <TableHead>ID Transaksi</TableHead>
 
-              <th>Tanggal</th>
+                    <TableHead>Total</TableHead>
 
-              <th>Aksi</th>
-            </tr>
-          </thead>
+                    <TableHead>Pembayaran</TableHead>
 
-          <tbody>
-            {filterData.map((item) => (
-              <tr
-                key={item.id_transaksi}
-                className="
-                                    border-b
-                                    hover:bg-blue-50
-                                    transition
-                                    "
-              >
-                <td className="p-4 font-semibold">{item.id_customer}</td>
+                    <TableHead>Produk</TableHead>
 
-                <td>{item.id_transaksi}</td>
+                    <TableHead>Tanggal</TableHead>
 
-                <td className="font-semibold text-green-600">
-                  {formatRupiah(item.total_transaksi)}
-                </td>
+                    <TableHead className="text-center">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
 
-                <td>
-                  <span
-                    className="
-                                            bg-blue-100
-                                            text-blue-600
-                                            px-3
-                                            py-1
-                                            rounded-full
-                                            "
-                  >
-                    {item.metode_pembayaran}
-                  </span>
-                </td>
+                <TableBody>
+                  {filterData.map((item) => (
+                    <TableRow key={item.id_transaksi}>
+                      <TableCell>{item.id_customer}</TableCell>
 
-                <td>{item.produk_dibeli}</td>
+                      <TableCell>{item.id_transaksi}</TableCell>
 
-                <td>{item.tanggal_transaksi}</td>
+                      <TableCell>
+                        <Badge
+                          className="
+bg-green-100
+text-green-700
+"
+                        >
+                          {formatRupiah(item.total_transaksi)}
+                        </Badge>
+                      </TableCell>
 
-                {/* ACTION */}
+                      <TableCell>
+                        <Badge
+                          className="
+bg-blue-100
+text-blue-700
+"
+                        >
+                          {item.metode_pembayaran}
+                        </Badge>
+                      </TableCell>
 
-                <td>
-                  <div className="flex justify-center gap-3">
-                    <button
-                      onClick={() => setDetail(item)}
-                      className="
-                                                bg-blue-100
-                                                text-blue-600
-                                                p-3
-                                                rounded-lg
-                                                hover:bg-blue-600
-                                                hover:text-white
-                                                "
-                    >
-                      <FaEye />
-                    </button>
+                      <TableCell>{item.produk_dibeli}</TableCell>
 
-                    <button
-                      onClick={() => hapusData(item.id_transaksi)}
-                      className="
-                                                bg-red-100
-                                                text-red-600
-                                                p-3
-                                                rounded-lg
-                                                hover:bg-red-600
-                                                hover:text-white
-                                                "
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                      <TableCell>{item.tanggal_transaksi}</TableCell>
 
-      {/* MODAL DETAIL */}
+                      {/* ACTION */}
 
-      {detail && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-          <div className="bg-white rounded-xl p-6 w-[450px]">
-            <h2 className="font-bold text-xl mb-5">Detail Transaksi</h2>
+                      <TableCell>
+                        <div className="flex justify-center gap-3">
+                          <Button
+                            onClick={() => setDetail(item)}
+                            className="
+bg-blue-600
+text-white
+"
+                          >
+                            <FaEye />
+                            Detail
+                          </Button>
 
+                          <Button
+                            onClick={() => setDeleteData(item)}
+                            className="
+bg-red-600
+text-white
+"
+                          >
+                            <FaTrash />
+                            Hapus
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="report">
+          <Card>
+            <CardContent className="p-5">
+              Total transaksi: {data.length}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* DETAIL DIALOG */}
+
+      <Dialog open={!!detail} onOpenChange={() => setDetail(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detail Transaksi</DialogTitle>
+          </DialogHeader>
+
+          {detail && (
             <div className="space-y-3">
               <p>ID Customer : {detail.id_customer}</p>
 
               <p>ID Transaksi : {detail.id_transaksi}</p>
 
-              <p>Total : {formatRupiah(detail.total_transaksi)}</p>
+              <p>Total :{formatRupiah(detail.total_transaksi)}</p>
 
-              <p>Pembayaran : {detail.metode_pembayaran}</p>
-
-              <p>Produk : {detail.produk_dibeli}</p>
-
-              <p>Tanggal : {detail.tanggal_transaksi}</p>
+              <p>Produk :{detail.produk_dibeli}</p>
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
-            <button
-              onClick={() => setDetail(null)}
+      {/* ALERT DELETE */}
+
+      <AlertDialog open={!!deleteData} onOpenChange={() => setDeleteData(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus transaksi?</AlertDialogTitle>
+
+            <AlertDialogDescription>
+              Transaksi <b>{deleteData?.id_transaksi}</b> akan dihapus permanen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+
+            <AlertDialogAction
+              onClick={hapusData}
               className="
-                                bg-[#1018A8]
-                                text-white
-                                w-full
-                                py-3
-                                rounded-xl
-                                mt-5
-                                "
+bg-red-600
+"
             >
-              Tutup
-            </button>
-          </div>
-        </div>
-      )}
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
