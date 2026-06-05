@@ -18,7 +18,7 @@ import {
 
 import { HiOutlineLogout } from "react-icons/hi";
 
-export default function Sidebar() {
+export default function sidebar() {
   const menuItems = [
     {
       path: "/",
